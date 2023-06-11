@@ -11,8 +11,9 @@ const ChatRoute = require('./routes/ChatRoute.js')
 const MessageRoute = require('./routes/MessageRoute.js')
 const CommentRoute = require('./routes/CommentRoute.js')
 const SchemeRoute = require('./routes/SchemeRoutes.js')
-
 require('dotenv').config()
+
+console.log(`converted to es5`)
 
 app.use(cors())
 app.use(bodyParser.json())
