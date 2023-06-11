@@ -12,7 +12,6 @@ import ChatRoute from './routes/ChatRoute.js'
 import MessageRoute from './routes/MessageRoute.js'
 import CommentRoute from './routes/CommentRoute.js'
 import SchemeRoute from './routes/SchemeRoutes.js'
-import indexRouter from './routes/index';
 
 
 var app = express()
@@ -28,8 +27,13 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
 
 app.use(express.static(path.join(__dirname, '../build')))
 
+var router = express.Router();
 
-app.use('/', indexRouter)
+router.get('/', function (req, res, next) {
+    console.log(`get main file from build`);
+    res.sendFile(path.join(__dirname, "../build/js/main.e54f4336.js"))
+})
+
 app.use('/auth', AuthRoute)
 app.use('/user', UserRoute)
 app.use('/posts', PostRoute)
