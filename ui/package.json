@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "scripts": {
+    "build": "rimraf build && cp -R src build"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "rimraf": "^3.0.2"
+  }
+}
