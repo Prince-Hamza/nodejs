@@ -19,8 +19,8 @@ const CONNECTION = process.env.MONGODB_CONNECTION
 
 mongoose
   .connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    httpServer.listen(port);
+  .then(async () => {
+    await httpServer.listen(port);
     httpServer.on('error', onError);
     httpServer.on('listening', onListening);
     console.log(`Listening @ Port ${port} | Mongoose is successfully connected`)
@@ -28,16 +28,6 @@ mongoose
   .catch((error) => console.log(`${error} Mongodb did not connect`));
 
 
-
-
-
-
-
-
-
-
-
-  
 
 function closeChangeStream(timeInMs = 60000, changeStream) {
   return new Promise((resolve) => {
