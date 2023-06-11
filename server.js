@@ -11,6 +11,7 @@ const ChatRoute = require('./routes/ChatRoute.js')
 const MessageRoute = require('./routes/MessageRoute.js')
 const CommentRoute = require('./routes/CommentRoute.js')
 const SchemeRoute = require('./routes/SchemeRoutes.js')
+const path = require('path')
 require('dotenv').config()
 
 console.log(`converted to es5`)
