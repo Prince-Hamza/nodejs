@@ -1,88 +1,229 @@
-const app = require('express')()
-const bodyParser = require('body-parser')
-app.use(bodyParser.json());
+import express from "express"
+import bodyParser from "body-parser"
+import cors from "cors"
+import dotenv from "dotenv"
+import mongoose from "mongoose"
+import AuthRoute from './routes/AuthRoute.js'
+import UserRoute from './routes/UserRoute.js'
+import PostRoute from './routes/PostRoute.js'
+import UploadRoute from './routes/UploadRoute.js'
+import ChatRoute from './routes/ChatRoute.js'
+import MessageRoute from './routes/MessageRoute.js'
+import CommentRoute from './routes/CommentRoute.js'
+import SchemeRoute from './routes/SchemeRoutes.js'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import { MongoClient } from 'mongodb'
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const https = require('https');
-const http = require('http');
-var skillsData = require('./skillsData.js')
-var termsData = require('./termsSelectData.js')
-// var termsData = require('./termsData.js')
 
-app.set('port', (process.env.PORT || 8081));
 
-app.get('/api/skills', (req, res) => {
-	try {			
-		const transformedSkills = skillsData.allSkills.map(primarySkill => {												
-			primarySkill.totalCount = primarySkill.associated_terms.length;
-			let associated_terms_sorted = primarySkill.associated_terms.sort((a, b) => parseFloat(b.ratio) - parseFloat(a.ratio));
-			if (associated_terms_sorted.length > 10) {
-				const indLessThan02 = associated_terms_sorted.findIndex(x => parseFloat(x.ratio) <= 0.2);
-				const cutOffIndex = indLessThan02 > 10 ? indLessThan02 : 10;
-				associated_terms_sorted.splice(cutOffIndex);
-			}
-				
-			primarySkill.associated_terms = associated_terms_sorted;
-			primarySkill.showSecondary = false;
-			return primarySkill;
-		});
-		//console.log("About to send all the skills");
-		res.send({primary_skills: transformedSkills});				
-	}
-	catch(err) {
-		var errMessage = `${err}`;
-		processErrorResponse(res, 500, errMessage);
-	}			
+const app = express();
+const httpServer = createServer(app)
+const io = new Server(httpServer, { cors: { origin: '*' } });
+
+
+// middleware
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(cors());
+
+// to serve images inside public folder
+app.use(express.static('public'));
+app.use('/images', express.static('images'));
+
+
+
+dotenv.config()
+const PORT = process.env.PORT
+const CONNECTION = process.env.MONGODB_CONNECTION
+
+mongoose
+  .connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    httpServer.listen(PORT)
+    console.log(`Listening @ Port ${PORT} | Mongoose is successfully connected`)
+  })
+  .catch((error) => console.log(`${error} Mongodb did not connect`));
+
+
+
+
+
+
+
+
+
+
+app.use('/auth', AuthRoute);
+app.use('/user', UserRoute)
+app.use('/posts', PostRoute)
+app.use('/upload', UploadRoute)
+app.use('/chat', ChatRoute)
+app.use('/message', MessageRoute)
+app.use('/comments', CommentRoute)
+app.use('/schemes', SchemeRoute)
+
+
+
+
+
+// mongodb events 
+
+function closeChangeStream(timeInMs = 60000, changeStream) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Closing the change stream");
+      changeStream.close();
+      resolve();
+    }, timeInMs)
+  })
+}
+
+async function monitorListingsUsingEventEmitter(client, timeInMs = 60000, pipeline = []) {
+  const collection = client.db("test").collection("messages");
+
+  // See https://mongodb.github.io/node-mongodb-native/3.6/api/Collection.html#watch for the watch() docs
+  const changeStream = collection.watch(pipeline);
+
+  // ChangeStream inherits from the Node Built-in Class EventEmitter (https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_class_eventemitter).
+  // We can use EventEmitter's on() to add a listener function that will be called whenever a change occurs in the change stream.
+  // See https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_emitter_on_eventname_listener for the on() docs.
+  changeStream.on('change', (data) => {
+    console.log(`changes detected in mongodb: ${JSON.stringify(data)}`)
+    io.emit('message', data)
+  })
+
+
+  console.log(`listings : waiting for changes in mongodb`);
+
+  // Wait the given amount of time and then close the change stream
+  await closeChangeStream(timeInMs, changeStream);
+}
+
+
+
+
+
+
+
+
+async function mongooseEvents() {
+
+  let uri = process.env.MONGODB_CONNECTION
+  let client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    const pipeline = [
+      {
+        '$match': {
+          'operationType': 'insert'
+        }
+      }
+    ]
+
+    await monitorListingsUsingEventEmitter(client, 60000 * 30, pipeline)
+
+  } finally {
+    await client.close();
+  }
+}
+
+
+
+
+async function monitorStreamKey(client, timeInMs = 60000, pipeline = []) {
+  const collection = client.db("test").collection("users")
+
+  // See https://mongodb.github.io/node-mongodb-native/3.6/api/Collection.html#watch for the watch() docs
+  const changeStream = collection.watch(pipeline);
+
+  // ChangeStream inherits from the Node Built-in Class EventEmitter (https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_class_eventemitter).
+  // We can use EventEmitter's on() to add a listener function that will be called whenever a change occurs in the change stream.
+  // See https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_emitter_on_eventname_listener for the on() docs.
+  changeStream.on('change', (data) => {
+    console.log(`changes detected in streamKey: ${JSON.stringify(data)}`)
+    io.emit('liveCall', data)
+  })
+
+
+  console.log(`key : waiting for changes in mongodb`);
+
+  // Wait the given amount of time and then close the change stream
+  await closeChangeStream(timeInMs, changeStream);
+}
+
+
+
+async function streamKeyEvent() {
+
+  let uri = process.env.MONGODB_CONNECTION
+  let client = new MongoClient(uri);
+
+  try {
+    await client.connect()
+
+    const pipeline2 = [
+      {
+        '$match': {
+          'operationType': 'update'
+        }
+      }
+    ]
+
+    await monitorStreamKey(client, 60000 * 120, pipeline2)
+
+  } finally {
+    await client.close();
+  }
+}
+
+
+// socket events
+
+
+
+io.on('connection', (socket) => {
+
+  console.log(`on connection : server connected to soket.io `)
+
+  socket.on('disconnect', () => {
+    console.log("disconnected")
+  })
+
+
+  socket.on('listen', async (data) => {
+    if (data && Object.keys(data).length) {
+      console.log(`LISTEN_EVEN :: Activate a listener for : ${JSON.stringify(data)}`)
+      await mongooseEvents()
+    }
+  })
+
+
+  // socket.on('listenCall', async (data) => {
+  //   if (data && Object.keys(data).length) {
+  //     console.log(`LISTEN_EVEN :: Activate a listener for : ${JSON.stringify(data)}`)
+  //     await streamKeyEvent()
+  //   }
+  // })
+
+
+  
+
+
+
+
+
+
+
 })
-	
-	
-app.get('/api/primarySkill/:skillName', (req, res) => {
-	const { skillName } = req.params		
-	try {
-		const primarySkill = skillsData.allSkills.find(x => x.primary_term.toLowerCase() === skillName.toLowerCase());
-		if (!primarySkill) {
-			throw `Primary skill ${skillName} was not found`;
-		}
-		let associated_terms_sorted = primarySkill.associated_terms.sort((a, b) => parseFloat(b.ratio) - parseFloat(a.ratio));					
-		primarySkill.associated_terms = associated_terms_sorted;			
-		res.send(primarySkill);
-	}
-	catch(err) {
-		var errMessage = `${err}`;
-		processErrorResponse(res, 500, errMessage);
-	}
-})
-	
-app.get('/api/terms', (req, res) => {
-	try {			
-		let transformedSkills = [];
-		Object.keys(termsData.allTerms).forEach(primarySkill => {		
-		//console.log(`/api/terms: primarySkill = ${primarySkill} termsData.allTerms[primarySkill] = ${JSON.stringify(termsData.allTerms[primarySkill])}`);
-			primarySkill.totalCount = termsData.allTerms[primarySkill].categories.length;
-			let categories_sorted = termsData.allTerms[primarySkill].categories.sort((a, b) => parseInt(b.filesAndPhrases.length) - parseInt(a.filesAndPhrases.length));				
-			termsData.allTerms[primarySkill].categories = categories_sorted;
-			termsData.allTerms[primarySkill].showSecondary = false;
-			transformedSkills.push({primary_term: primarySkill, categories: termsData.allTerms[primarySkill].categories});
-		});
-		res.send({primary_skills: transformedSkills});				
-	}
-	catch(err) {
-		var errMessage = `${err}`;
-		processErrorResponse(res, 500, errMessage);
-	}			
-})		
-	
-function processErrorResponse(res, statusCode, message) {
-	console.log(`${statusCode} ${message}`);
-	res.status(statusCode).send({
-		error: {
-			status: statusCode,
-			message: message
-		},
-	});
-}	
 
-app.listen(app.get('port'), function() {
-  console.log('Express app vercel-express-react-demo is running on port', app.get('port'));
-});
 
-module.exports = app	
+
+
+
+
