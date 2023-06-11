@@ -13,7 +13,7 @@
 // const SchemeRoute = require('./routes/SchemeRoutes.js')
 // require('dotenv').config()
 
-// console.log(`converted to es5`)
+console.log(`converted to es5`)
 
 // app.use(cors())
 // app.use(bodyParser.json())
