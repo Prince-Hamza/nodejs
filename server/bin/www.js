@@ -12,8 +12,7 @@ var port = normalizePort(process.env.PORT || '5000')
 app.set('port', port)
 var httpServer = http.createServer(app)
 
-
-
+console.log(`Luckily everyone has access to mongodb`)
 
 const io = new Server(httpServer, { cors: { origin: '*' } })
 const CONNECTION = process.env.MONGODB_CONNECTION
