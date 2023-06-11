@@ -20,9 +20,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-app.use('/', express.static(__dirname + '/build'))
+app.use(express.static(__dirname + '/build'))
 
-app.use('/auth', AuthRoute);
+app.get("/", function (req, res) {
+   return res.sendFile(path.join(__dirname, "build", "index.html"))
+})
+
+app.use('/auth', AuthRoute)
 app.use('/user', UserRoute)
 app.use('/posts', PostRoute)
 app.use('/upload', UploadRoute)
@@ -43,6 +47,8 @@ mongoose
         console.log(`Listening @ Port ${PORT} | Mongoose is successfully connected`)
     })
     .catch((error) => console.log(`${error} Mongodb did not connect`));
+
+
 
 
 
