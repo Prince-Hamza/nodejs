@@ -12,6 +12,7 @@ import ChatRoute from './routes/ChatRoute.js'
 import MessageRoute from './routes/MessageRoute.js'
 import CommentRoute from './routes/CommentRoute.js'
 import SchemeRoute from './routes/SchemeRoutes.js'
+import indexRouter from './routes/index';
 
 
 var app = express()
@@ -23,10 +24,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(bodyParser.json({ limit: "30mb", extended: true }))
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }))
+
+
 app.use(express.static(path.join(__dirname, '../build')))
 
 
-
+app.use('/', indexRouter)
 app.use('/auth', AuthRoute)
 app.use('/user', UserRoute)
 app.use('/posts', PostRoute)

@@ -12,15 +12,18 @@ var port = normalizePort(process.env.PORT || '5000')
 app.set('port', port)
 var httpServer = http.createServer(app)
 
+
+
 console.log(`Luckily everyone has access to mongodb`)
+
 
 const io = new Server(httpServer, { cors: { origin: '*' } })
 const CONNECTION = process.env.MONGODB_CONNECTION
 
 mongoose
   .connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(async () => {
-    await httpServer.listen(port);
+  .then(() => {
+    httpServer.listen(port);
     httpServer.on('error', onError);
     httpServer.on('listening', onListening);
     console.log(`Listening @ Port ${port} | Mongoose is successfully connected`)
