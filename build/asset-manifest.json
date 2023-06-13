@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.9cbc6823.css",
-    "main.js": "/static/js/main.e54f4336.js",
+    "main.css": "/static/css/main.fd5368f1.css",
+    "main.js": "/static/js/main.b40d4038.js",
     "static/media/logo_istic.jpg": "/static/media/logo_istic.8fe6d75bc92126275fe8.jpg",
     "static/media/logo_istic.png": "/static/media/logo_istic.9aff6f17476db954f4bc.png",
     "static/media/user01.png": "/static/media/user01.2500a95cab9469906b8f.png",
@@ -10,11 +10,11 @@
     "static/media/envelope.png": "/static/media/envelope.cb392634839fbe479f91.png",
     "static/media/edit.png": "/static/media/edit.0f46e2728eb984e21ce8.png",
     "index.html": "/index.html",
-    "main.9cbc6823.css.map": "/static/css/main.9cbc6823.css.map",
-    "main.e54f4336.js.map": "/static/js/main.e54f4336.js.map"
+    "main.fd5368f1.css.map": "/static/css/main.fd5368f1.css.map",
+    "main.b40d4038.js.map": "/static/js/main.b40d4038.js.map"
   },
   "entrypoints": [
-    "static/css/main.9cbc6823.css",
-    "static/js/main.e54f4336.js"
+    "static/css/main.fd5368f1.css",
+    "static/js/main.b40d4038.js"
   ]
 }
