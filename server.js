@@ -1,5 +1,4 @@
 const express = require('express')
-const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require("mongoose").default
@@ -15,14 +14,14 @@ const { createServer } = require('http')
 const { Server } = require('socket.io')
 const { MongoClient } = require('mongodb')
 const path = require('path')
+const { fileURLToPath } = require('url')
+const UserModel = require("./models/userModel.js")
+
 require('dotenv').config()
 
-
-
+const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, { cors: { origin: '*' } });
-
-
 
 
 app.use(cors())
