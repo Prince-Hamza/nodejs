@@ -10,6 +10,8 @@ const ChatRoute = require('./routes/ChatRoute.js')
 const MessageRoute = require('./routes/MessageRoute.js')
 const CommentRoute = require('./routes/CommentRoute.js')
 const SchemeRoute = require('./routes/SchemeRoutes.js')
+const NotificationRoute = require('./routes/NotificationRoute.js')
+
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 const { MongoClient } = require('mongodb')
@@ -44,6 +46,19 @@ app.use('/chat', ChatRoute)
 app.use('/message', MessageRoute)
 app.use('/comments', CommentRoute)
 app.use('/schemes', SchemeRoute)
+app.use('/notify', NotificationRoute)
+
+
+
+// online users api
+
+var onlineUsers = []
+
+app.get('/onlineUsers', (req, res) => {
+  // onlineUsers = _.uniqBy(onlineUsers, 'userId')
+  // console.log(`online users length : ${onlineUsers.length}`)
+  return res.status(200).send(onlineUsers)
+})
 
 
 const PORT = process.env.PORT
