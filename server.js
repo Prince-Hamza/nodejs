@@ -37,6 +37,10 @@ app.get("/", function (req, res) {
     return res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
+app.get("*", function (req, res) {
+    return res.sendFile(path.join(__dirname, "build", "index.html"))
+})
+
 
 app.use('/auth', AuthRoute)
 app.use('/user', UserRoute)
