@@ -36,18 +36,6 @@
   "devDependencies": {
     "jest": "^25.1.0"
   },
-  "nodemonConfig": {
-    "exec": "npm run dev",
-    "watch": [
-      "server/*",
-      "public/*"
-    ],
-    "ignore": [
-      "**/__tests__/**",
-      "*.test.js",
-      "*.spec.js"
-    ]
-  },
   "babel": {
     "presets": [
       "@babel/preset-env"
@@ -57,6 +45,7 @@
     "testEnvironment": "node"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:dev": "nodemon server.js"
   }
 }
