@@ -37,9 +37,23 @@ app.get("/", function (req, res) {
     return res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
-app.get("*", function (req, res) {
+app.get("/profile/:id", function (req, res) {
     return res.sendFile(path.join(__dirname, "build", "index.html"))
 })
+
+app.get("/chat", function (req, res) {
+    return res.sendFile(path.join(__dirname, "build", "index.html"))
+})
+
+
+app.get("/chat/:id", function (req, res) {
+    return res.sendFile(path.join(__dirname, "build", "index.html"))
+})
+
+app.get("/live", function (req, res) {
+    return res.sendFile(path.join(__dirname, "build", "index.html"))
+})
+
 
 
 app.use('/auth', AuthRoute)
@@ -59,9 +73,9 @@ app.use('/notify', NotificationRoute)
 var onlineUsers = []
 
 app.get('/onlineUsers', (req, res) => {
-  // onlineUsers = _.uniqBy(onlineUsers, 'userId')
-  // console.log(`online users length : ${onlineUsers.length}`)
-  return res.status(200).send(onlineUsers)
+    // onlineUsers = _.uniqBy(onlineUsers, 'userId')
+    // console.log(`online users length : ${onlineUsers.length}`)
+    return res.status(200).send(onlineUsers)
 })
 
 
@@ -155,7 +169,7 @@ async function monitorUsersOnline(client, timeInMs = 60000, pipeline = []) {
     // See https://nodejs.org/dist/latest-v12.x/docs/api/events.html#events_emitter_on_eventname_listener for the on() docs.
     changeStream.on('change', (data) => {
         console.log(`changes detected in mongodb : users : ${JSON.stringify(data)}`)
-       // io.emit('onlineUsersMongoEvent', data)
+        // io.emit('onlineUsersMongoEvent', data)
     })
 
     console.log(`listings : waiting for changes in mongodb`);
@@ -204,60 +218,60 @@ ev()
 var listening = false
 
 if (!listening) {
-  listening = true
+    listening = true
 
-  io.on('connection', (socket) => {
-    // console.log(`on connection : server connected to soket.io : ${socket.id} `)
+    io.on('connection', (socket) => {
+        // console.log(`on connection : server connected to soket.io : ${socket.id} `)
 
-    console.log(`listening`)
-    socket.on('listen', async (data) => {
-      if (data && Object.keys(data).length) {
-        console.log(`LISTEN_EVEN :: Activate a listener for : ${JSON.stringify(data)}`)
-        await mongooseEvents()
-      }
+        console.log(`listening`)
+        socket.on('listen', async (data) => {
+            if (data && Object.keys(data).length) {
+                console.log(`LISTEN_EVEN :: Activate a listener for : ${JSON.stringify(data)}`)
+                await mongooseEvents()
+            }
+        })
+
+        socket.on('joined', async ({ userId, userName, profilePicture }) => {
+            // add to online users
+            // save/send online users along socket.id
+            console.log(`user : ${userId} has joined`)
+            onlineUsers.push({ userId: userId, socketId: socket.id, userName: userName, profilePicture: profilePicture })
+            console.log(`emit online users : ${onlineUsers}`)
+
+            await UserModel.findOneAndUpdate({ id: userId }, { online: true })
+            console.log(`updated user as online succesfully`)
+
+        })
+
+
+        socket.on("disconnect", async (data) => {
+
+            console.log(`disconnect data : ${data}`)
+            console.log(`socket : ${socket.id} is disconnected`)
+
+
+            var userId = false
+            onlineUsers.forEach((item) => {
+                console.log(`si  (${item.socketId})  === s.i(${socket.id})  or in ${data} ???`)
+                if (item.socketId === socket.id) {
+                    console.log(`FOUND DISCONNECTED USER : Id : ${item.userId} `)
+                    userId = item.userId
+                }
+                return item.socketId === socket.id
+            })
+
+            if (userId) {
+                await UserModel.findOneAndUpdate({ id: userId }, { online: false })
+
+                console.log(`updated user : ${userId} as offline succesfully`)
+
+                onlineUsers = onlineUsers.filter((item) => { return item.socketId !== socket.id })
+
+            }
+
+        })
+
     })
-
-    socket.on('joined', async ({ userId, userName, profilePicture }) => {
-      // add to online users
-      // save/send online users along socket.id
-      console.log(`user : ${userId} has joined`)
-      onlineUsers.push({ userId: userId, socketId: socket.id, userName: userName, profilePicture: profilePicture })
-      console.log(`emit online users : ${onlineUsers}`)
-
-      await UserModel.findOneAndUpdate({ id: userId }, { online: true })
-      console.log(`updated user as online succesfully`)
-
-    })
-
-
-    socket.on("disconnect", async (data) => {
-
-      console.log(`disconnect data : ${data}`)
-      console.log(`socket : ${socket.id} is disconnected`)
-
-
-      var userId = false
-      onlineUsers.forEach((item) => {
-        console.log(`si  (${item.socketId})  === s.i(${socket.id})  or in ${data} ???`)
-        if (item.socketId === socket.id) {
-          console.log(`FOUND DISCONNECTED USER : Id : ${item.userId} `)
-          userId = item.userId
-        }
-        return item.socketId === socket.id
-      })
-
-      if (userId) {
-        await UserModel.findOneAndUpdate({ id: userId }, { online: false })
-
-        console.log(`updated user : ${userId} as offline succesfully`)
-
-        onlineUsers = onlineUsers.filter((item) => { return item.socketId !== socket.id })
-
-      }
-
-    })
-
-  })
 
 }
 
