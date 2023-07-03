@@ -45,7 +45,7 @@
     "testEnvironment": "node"
   },
   "scripts": {
-    "start": "node server.js",
-    "start:dev": "nodemon server.js"
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
   }
 }
