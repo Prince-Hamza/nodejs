@@ -215,16 +215,22 @@ const queryUser = async (req, res) => {
 
 
 const update = async (req, res) => {
+
   const id = req.body.id
+
+  console.log(`user update :  id : ${id} `)
 
   if (!id) return res.status(400).send({ error: "user id not supplied" })
 
   try {
-    const updated = await UserModel.find({ id: id }).update({ ...req.body })
+    const updated = await UserModel.findOneAndUpdate({ id: id }, { ...req.body })
+
+    console.log(`user : update : successfully updated : ${updated}`);
 
     return res.status(200).send({ success: true, ...updated })
 
   } catch (ex) {
+    console.log(`error updating pic : ${ex.toString()}`)
     return res.status(400).send({ error: ex.toString() })
   }
 }
