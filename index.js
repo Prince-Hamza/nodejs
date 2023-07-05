@@ -99,14 +99,14 @@ mongoose
 
 // mongodb events 
 
-function closeChangeStream(timeInMs = 60000, changeStream) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log("Closing the change stream");
-            changeStream.close();
-            resolve();
-        }, timeInMs)
-    })
+async function closeChangeStream(timeInMs = 60000, changeStream) {
+    // return new Promise((resolve) => {
+    //     setTimeout(() => {
+    //         console.log("Closing the change stream");
+    //         changeStream.close();
+    //         resolve();
+    //     }, timeInMs)
+    // })
 }
 
 async function monitorListingsUsingEventEmitter(client, timeInMs = 60000, pipeline = []) {
@@ -126,7 +126,12 @@ async function monitorListingsUsingEventEmitter(client, timeInMs = 60000, pipeli
     console.log(`listings : waiting for changes in mongodb`);
 
     // Wait the given amount of time and then close the change stream
-    await closeChangeStream(timeInMs, changeStream);
+    // await closeChangeStream(timeInMs, changeStream);
+
+    
+    // keep the process alive
+    await new Promise(() => {})
+    
 }
 
 
@@ -176,15 +181,19 @@ async function monitorUsersOnline(client, timeInMs = 60000, pipeline = []) {
     console.log(`listings : waiting for changes in mongodb`);
 
     // Wait the given amount of time and then close the change stream
-    await closeChangeStream(timeInMs, changeStream);
+    // await closeChangeStream(timeInMs, changeStream);
+
+    // keep the process alive
+    await new Promise(() => {})
+
 }
 
 
 
-async function userOnlineEvent() {
+const userOnlineEvent = async () => {
 
     let uri = process.env.MONGODB_CONNECTION
-    let client = new MongoClient(uri);
+    let client = new MongoClient(uri)
 
     try {
         await client.connect()
@@ -199,7 +208,7 @@ async function userOnlineEvent() {
         await monitorUsersOnline(client, 60000 * 30, pipeline)
 
     } finally {
-        await client.close();
+        await client.close()
     }
 }
 
