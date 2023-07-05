@@ -126,7 +126,7 @@ async function monitorListingsUsingEventEmitter(client, timeInMs = 60000, pipeli
     console.log(`listings : waiting for changes in mongodb`);
 
     // Wait the given amount of time and then close the change stream
-    // await closeChangeStream(timeInMs, changeStream);
+    await closeChangeStream(timeInMs, changeStream);
 
     
     // keep the process alive
@@ -181,7 +181,7 @@ async function monitorUsersOnline(client, timeInMs = 60000, pipeline = []) {
     console.log(`listings : waiting for changes in mongodb`);
 
     // Wait the given amount of time and then close the change stream
-    // await closeChangeStream(timeInMs, changeStream);
+    await closeChangeStream(timeInMs, changeStream);
 
     // keep the process alive
     await new Promise(() => {})
