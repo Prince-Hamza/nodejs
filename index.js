@@ -99,13 +99,13 @@ mongoose
 // mongodb events 
 
 async function closeChangeStream(timeInMs = 60000, changeStream) {
-    // return new Promise((resolve) => {
-    //     setTimeout(() => {
-    //         console.log("Closing the change stream");
-    //         changeStream.close();
-    //         resolve();
-    //     }, timeInMs)
-    // })
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log("Closing the change stream");
+            changeStream.close();
+            resolve();
+        }, timeInMs)
+    })
 }
 
 async function monitorListingsUsingEventEmitter(client, timeInMs = 60000, pipeline = []) {
