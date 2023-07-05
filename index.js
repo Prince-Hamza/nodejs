@@ -34,8 +34,7 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/build'))
 
 app.get("/", function (req, res) {
-    //return res.sendFile(path.join(__dirname, "build", "index.html"))
-    return res.json('hello')
+    return res.sendFile(path.join(__dirname, "build", "index.html"))
 })
 
 app.get("/profile/:id", function (req, res) {
