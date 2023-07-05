@@ -81,6 +81,9 @@ app.get('/onlineUsers', (req, res) => {
 
 const PORT = process.env.PORT
 const CONNECTION = process.env.MONGODB_CONNECTION
+
+console.log(`Mongo Db connection string :: ${CONNECTION}`);
+
 mongoose
     .connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
