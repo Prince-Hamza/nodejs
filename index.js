@@ -88,7 +88,7 @@ mongoose
         const port = process.env.PORT
         httpServer.listen(port || 5000)
         console.log(`Server running on port: ${port || 5000}`)
-        console.log(`Listening @ Port ${PORT} | Mongoose is successfully connected`)
+        console.log(`Server Listening @ Port ${PORT} | Mongoose is successfully connected`)
     })
     .catch((error) => console.log(`${error} Mongodb did not connect`));
 
