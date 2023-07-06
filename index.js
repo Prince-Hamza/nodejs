@@ -21,7 +21,7 @@ require('dotenv').config()
 
 const app = express()
 const httpServer = createServer(app)
-const io = new Server(httpServer, { cors: { origin: '*' }, connectTimeout: 60000, pingTimeout: 60000, upgradeTimeout: 60000 })
+const io = new Server(httpServer, { cors: { origin: '*' }, connectTimeout: 60000, pingTimeout: 60000, upgradeTimeout: 60000, transports: ['websocket'] })
 
 // app.use(cors())
 app.use(bodyParser.json())
@@ -79,7 +79,8 @@ app.get('/onlineUsers', (req, res) => {
 const PORT = process.env.PORT
 const CONNECTION = process.env.MONGODB_CONNECTION
 
-console.log(`Mongo Db connection string :: ${CONNECTION}`);
+console.log(`port number :: ${PORT}`)
+console.log(`Mongo Db connection string :: ${CONNECTION}`)
 
 mongoose
     .connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
