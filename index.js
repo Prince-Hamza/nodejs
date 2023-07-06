@@ -21,7 +21,7 @@ require('dotenv').config()
 
 const app = express()
 const httpServer = createServer(app)
-const io = new Server(httpServer)
+const io = new Server(httpServer, { cors: { origin: '*' }, connectTimeout: 60000, pingTimeout: 60000, upgradeTimeout: 60000 })
 
 // app.use(cors())
 app.use(bodyParser.json())
